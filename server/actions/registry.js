@@ -21,6 +21,16 @@ function normalizeUrl(s) {
   return isHttpUrl(withScheme) ? withScheme : '';
 }
 
+// Like normalizeUrl, but permits external app schemes (steam:, spotify:, etc).
+// Explicitly blocks unsafe protocols (javascript:, file:, data:).
+function normalizeExternalUrl(s) {
+  const v = String(s == null ? '' : s).trim();
+  if (!v) return '';
+  const withScheme = /^[a-z][a-z0-9+.-]*:/i.test(v) ? v : 'https://' + v;
+  if (/^(javascript|vbscript|file|data):/i.test(withScheme)) return '';
+  return withScheme;
+}
+
 function isAllowedAppPath(p) {
   return typeof p === 'string' && /\.(exe|lnk)$/i.test(p.trim());
 }
@@ -159,7 +169,7 @@ function createRegistry(deps) {
           return { ok: true };
         }
         case 'openUrl': {
-          const url = normalizeUrl(action.url);
+          const url = normalizeExternalUrl(action.url);
           if (!url) return { ok: false, error: 'bad_url' };
           await d.openExternal(url);
           return { ok: true };
