@@ -3,6 +3,28 @@
 // Scoped field lookup within one System instance root.
 function sf(root, name) { return root.querySelector('[data-sf="' + name + '"]'); }
 
+let sysMonitorView = localStorage.getItem('sysMonitorView') || 'lines';
+let cpuCirclePrimary = 'usage';
+let gpuCirclePrimary = 'usage';
+
+function setSysView(view) {
+  sysMonitorView = view;
+  localStorage.setItem('sysMonitorView', view);
+  if (typeof setSystemTab === 'function' && typeof currentSysTab !== 'undefined') {
+    setSystemTab(currentSysTab);
+  }
+  if (lastSystemData) applySystem(lastSystemData);
+}
+
+function cycleCircleMetric(card) {
+  if (card === 'cpu' && lastSystemData && Number(lastSystemData.cpuTemp) > 0) {
+    cpuCirclePrimary = cpuCirclePrimary === 'usage' ? 'temp' : 'usage';
+  } else if (card === 'gpu' && lastSystemData && Number(lastSystemData.gpuTemp) > 0) {
+    gpuCirclePrimary = gpuCirclePrimary === 'usage' ? 'temp' : 'usage';
+  }
+  if (lastSystemData) applySystem(lastSystemData);
+}
+
 function cycleDisk() {
   if (!systemDisks || systemDisks.length < 2) return;
   diskIndex = (diskIndex + 1) % systemDisks.length;
@@ -75,6 +97,27 @@ function applySystemInto(root, data) {
   const set = (name, text) => { const el = sf(root, name); if (el) el.textContent = text; };
   const fillEl = (name, pct) => { const el = sf(root, name); if (el) setFill(el, pct); };
 
+  const isCircles = sysMonitorView === 'circles';
+  const isMainTab = (typeof currentSysTab === 'undefined' || currentSysTab === 'main');
+  
+  const gridMain = root.querySelector('#sys-grid-main') || root.querySelector('.system-grid:not(.system-grid-circles):not(.sys-net-grid)');
+  const gridCircles = root.querySelector('#sys-grid-circles') || root.querySelector('.system-grid-circles');
+  if (gridMain) gridMain.hidden = (isCircles || !isMainTab);
+  if (gridCircles) gridCircles.hidden = (!isCircles || !isMainTab);
+
+  const netGrid = root.querySelector('#sys-grid-net') || root.querySelector('.sys-net-grid');
+  const netLabel = root.querySelector('#sys-net-label') || root.querySelector('[data-i18n="sys_tab_net"]');
+  if (netGrid) netGrid.hidden = (isCircles || !isMainTab);
+  if (netLabel) netLabel.hidden = (isCircles || !isMainTab);
+
+  const btnLines = root.querySelector('#sys-view-lines');
+  const btnCircles = root.querySelector('#sys-view-circles');
+  if (btnLines) btnLines.classList.toggle('active', !isCircles);
+  if (btnCircles) btnCircles.classList.toggle('active', isCircles);
+
+  const tabsContainer = root.querySelector('.system-tabs');
+  if (tabsContainer) tabsContainer.classList.toggle('is-circles', isCircles);
+
   set('host-name', data.hostname || 'Local cockpit');
   set('uptime-text', `${t('uptime_prefix')} ${formatUptime(data.uptime)}`);
 
@@ -133,6 +176,42 @@ function applySystemInto(root, data) {
     const cycleBtn = sf(root, 'disk-cycle-btn');
     if (cycleBtn) cycleBtn.style.display = 'none';
   }
+
+  // --- Circle UI Update ---
+  const cpuTempValid = Number.isFinite(cpuTemp) && cpuTemp > 0;
+  if (cpuCirclePrimary === 'temp' && !cpuTempValid) cpuCirclePrimary = 'usage';
+  
+  set('cpu-circle-name', shortHwName(data.cpuName) || '--');
+  if (cpuCirclePrimary === 'usage') {
+    set('cpu-circle-pri', cpu + '%');
+    set('cpu-circle-sec', cpuTempValid ? Math.round(cpuTemp) + '°C' : '');
+  } else {
+    set('cpu-circle-pri', Math.round(cpuTemp) + '°C');
+    set('cpu-circle-sec', cpu + '% uso');
+  }
+  const cpuCirclePath = sf(root, 'cpu-circle-path');
+  if (cpuCirclePath) cpuCirclePath.style.strokeDasharray = `${Math.max(0, Math.min(100, cpu))}, 100`;
+
+  const gpuTempValid = Number.isFinite(gpuTemp) && gpuTemp > 0;
+  if (gpuCirclePrimary === 'temp' && !gpuTempValid) gpuCirclePrimary = 'usage';
+
+  set('gpu-circle-name', shortHwName(data.gpuName) || '--');
+  let gpuUsage = Number.isFinite(data.gpu) ? data.gpu : 0;
+  if (gpuCirclePrimary === 'usage') {
+    set('gpu-circle-pri', gpuUsage + '%');
+    set('gpu-circle-sec', gpuTempValid ? Math.round(gpuTemp) + '°C' : '');
+  } else {
+    set('gpu-circle-pri', Math.round(gpuTemp) + '°C');
+    set('gpu-circle-sec', gpuUsage + '% uso');
+  }
+  const gpuCirclePath = sf(root, 'gpu-circle-path');
+  if (gpuCirclePath) gpuCirclePath.style.strokeDasharray = `${Math.max(0, Math.min(100, gpuUsage))}, 100`;
+
+  set('ram-circle-name', (ramDetail.moduleName || data.ramName || '').split(' ')[0] || 'RAM');
+  set('ram-circle-pri', ram + '%');
+  set('ram-circle-sec', data.memory ? formatBytes(data.memory.used) : '');
+  const ramCirclePath = sf(root, 'ram-circle-path');
+  if (ramCirclePath) ramCirclePath.style.strokeDasharray = `${Math.max(0, Math.min(100, ram))}, 100`;
 }
 
 function applySystem(data) {

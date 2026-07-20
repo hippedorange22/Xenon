@@ -548,7 +548,7 @@ body[data-panel] .layout-controls {
    back; the editor's controls live in the dock below instead. A glass
    "Layout" button stays pinned in the corner so the editor is always
    reachable, and the dock carries "Mostra barra superiore" to bring it back. */
-body.topbar-hidden .topbar { display: none; }
+body.topbar-hidden .topbar { display: none !important; }
 /* Not editing → the pager fills the whole shell (no topbar/dock rows). */
 body.topbar-hidden:not(.layout-editing) .shell { grid-template-rows: minmax(0, 1fr); }
 /* Editing → only the dock row + pager (the empty topbar row is dropped). */

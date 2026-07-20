@@ -437,3 +437,167 @@
   text-overflow: ellipsis;
   display: none;
 }
+
+/* --- Switcher --- */
+.sys-view-switcher {
+  display: flex;
+  background: rgba(0,0,0,0.3);
+  border-radius: 6px;
+  padding: 2px;
+  gap: 2px;
+  border: 1px solid rgba(255,255,255,0.05);
+}
+.sys-view-btn {
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  width: 26px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  color: var(--dim-text);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.sys-view-btn svg {
+  width: 13px;
+  height: 13px;
+  opacity: 0.7;
+}
+.sys-view-btn.active {
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.5);
+}
+.sys-view-btn.active svg { opacity: 1; }
+
+/* --- Circular Grid UI --- */
+.system-grid-circles {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  padding-bottom: 8px;
+}
+.system-grid-circles[hidden] {
+  display: none !important;
+}
+
+.stat-box-circle {
+  background: linear-gradient(145deg, rgba(30, 36, 40, 0.6), rgba(20, 24, 26, 0.8));
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.2s ease;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+.stat-box-circle:hover {
+  background: linear-gradient(145deg, rgba(38, 45, 50, 0.7), rgba(24, 29, 31, 0.9));
+  transform: translateY(-2px);
+}
+.stat-box-circle[data-system-card="ram"], .stat-box-circle[data-system-card="net"] {
+  cursor: default;
+}
+.stat-box-circle[data-system-card="ram"]:hover, .stat-box-circle[data-system-card="net"]:hover {
+  transform: none;
+}
+
+.circle-title {
+  color: #a9b8b2;
+  font-size: 14px;
+  font-weight: 850;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+
+.circle-sub {
+  margin-top: 10px;
+  color: var(--muted-text);
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.circle-chart-container {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.circle-chart {
+  width: 100%;
+  height: 100%;
+  transform: rotate(180deg); /* Start from bottom, or rotate(-90deg) to start from top. Let's do top */
+}
+.circle-chart { transform: rotate(-90deg); }
+
+.circle-bg {
+  fill: none;
+  stroke: rgba(255,255,255,0.05);
+  stroke-width: 2.5;
+}
+
+.circle-fill {
+  fill: none;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  transition: stroke-dasharray 0.5s ease-out;
+}
+
+/* Vibrant colors for the circles */
+.cpu-fill { stroke: var(--green); }
+.gpu-fill { stroke: #4c8cff; }
+.ram-fill { stroke: #ffb74d; }
+.net-fill { stroke: #a374ff; }
+
+.circle-content {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.circle-val-pri {
+  font-size: 26px;
+  font-weight: 900;
+  color: #fff;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+}
+
+.circle-val-sec {
+  font-size: 13px;
+  font-weight: 800;
+  color: #c0cac6;
+  margin-top: 2px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Compact tabs when in circles view */
+.system-tabs.is-circles .system-tabs-left {
+  flex-wrap: nowrap !important;
+}
+.system-tabs.is-circles .sys-tab span {
+  display: none;
+}
+.system-tabs.is-circles .sys-tab {
+  padding: 6px 8px; /* Slightly tighter padding when text is hidden */
+}

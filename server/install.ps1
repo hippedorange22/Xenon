@@ -231,7 +231,18 @@ function Show-Banner {
 function Refresh-Path {
   $machinePath = [Environment]::GetEnvironmentVariable('Path', 'Machine')
   $userPath = [Environment]::GetEnvironmentVariable('Path', 'User')
-  $env:Path = @($machinePath, $userPath, $env:Path) -join ';'
+  $allPaths = @()
+  if ($machinePath) { $allPaths += $machinePath -split ';' }
+  if ($userPath) { $allPaths += $userPath -split ';' }
+  if ($env:Path) { $allPaths += $env:Path -split ';' }
+  $uniquePaths = @()
+  foreach ($p in $allPaths) {
+    $pTrim = $p.Trim()
+    if ($pTrim -and ($uniquePaths -notcontains $pTrim)) {
+      $uniquePaths += $pTrim
+    }
+  }
+  $env:Path = $uniquePaths -join ';'
 }
 
 function Test-IsElevated {

@@ -14,7 +14,7 @@ const SETTINGS_FONT_EXTENSIONS = Object.freeze(new Set(['woff2', 'woff', 'ttf', 
 // comes from the @font-face src, so the family label never needs to match the file.
 const USER_FONT_FAMILY = 'XenonUserFont';
 
-const DASHBOARD_WIDGET_IDS = Object.freeze(['media', 'agenda', 'mic', 'audio', 'system', 'notes', 'tasks', 'calendar', 'timer', 'chat', 'deck', 'remote', 'twitch', 'obs', 'youtube', 'discord', 'spotify', 'browser', 'secondscreen', 'weather', 'smarthome', 'streamerbot', 'wavelink', 'lighting', 'notifications', 'stocks', 'football', 'news', 'claude', 'vitals', 'unifi', 'custom']);
+const DASHBOARD_WIDGET_IDS = Object.freeze(['media', 'agenda', 'mic', 'audio', 'system', 'notes', 'tasks', 'calendar', 'timer', 'chat', 'deck', 'remote', 'twitch', 'obs', 'youtube', 'discord', 'spotify', 'browser', 'secondscreen', 'weather', 'smarthome', 'streamerbot', 'wavelink', 'lighting', 'notifications', 'stocks', 'football', 'news', 'claude', 'vitals', 'unifi', 'custom', 'digitalclock']);
 // Selectable stock-data providers + chart ranges (mirrors server/stocks.js).
 const STOCK_PROVIDER_IDS = Object.freeze(['auto', 'yahoo', 'twelvedata', 'finnhub']);
 const STOCK_RANGE_IDS = Object.freeze(['1d', '1w', '1m', '1y']);
@@ -111,6 +111,7 @@ const DEFAULT_DASHBOARD_LAYOUT = Object.freeze({
     vitals:   Object.freeze({ x: 8, y: 38, w: 8, h: 8, visible: false, page: 'dashboard' }),
     unifi:    Object.freeze({ x: 8, y: 18, w: 8, h: 8, visible: false, page: 'dashboard' }),
     custom:   Object.freeze({ x: 0, y: 28, w: 8, h: 8, visible: false, page: 'dashboard' }),
+    digitalclock: Object.freeze({ x: 0, y: 0, w: 6, h: 6, visible: false, page: 'dashboard' }),
   }),
   groups: Object.freeze({
     'media-group': Object.freeze({ id: 'media-group', members: Object.freeze(['media', 'chat']), active: 'media', x: 0, y: 0, w: 8, h: 8, page: 'dashboard', seeded: true, autoTabByMedia: true }),
@@ -180,7 +181,7 @@ const DEFAULT_HUB_SETTINGS = Object.freeze({
   // 'full' keeps the classic glass bar; 'minimal' docks the quick actions into
   // collapsible edge rails and shrinks clock/date/weather/page-dots into one
   // compact island pill (see js/topbar-minimal.js).
-  topbarStyle: 'full', // 'full' | 'minimal'
+  topbarStyle: 'full', // 'full' | 'minimal' | 'hidden'
   // Minimal-mode edge-rail drawer positions (true = collapsed). Server-synced (not
   // browser-local) so the kiosk remembers the choice across launches / storage
   // resets; both default closed so the rails never open on their own.
@@ -1096,7 +1097,7 @@ function normalizeSettings(source) {
     appearance: ['light', 'dark', 'auto'].includes(value.appearance) ? value.appearance : DEFAULT_HUB_SETTINGS.appearance,
     styleMode: value.styleMode === 'retro' ? 'retro' : 'glass',
     retroScanlines: value.retroScanlines !== false,
-    topbarStyle: value.topbarStyle === 'minimal' ? 'minimal' : 'full',
+    topbarStyle: value.topbarStyle === 'minimal' ? 'minimal' : (value.topbarStyle === 'hidden' ? 'hidden' : 'full'),
     topbarRails: normalizeTopbarRails(value.topbarRails),
     topbarRailsAutoHide: value.topbarRailsAutoHide !== false,
     topbarClock: normalizeTopbarClock(value.topbarClock),
@@ -6027,7 +6028,7 @@ function syncClockFormatControls() {
 }
 
 function syncTopbarStyleControls() {
-  const style = hubSettings.topbarStyle === 'minimal' ? 'minimal' : 'full';
+  const style = ['minimal', 'hidden'].includes(hubSettings.topbarStyle) ? hubSettings.topbarStyle : 'full';
   document.querySelectorAll('.settings-topbar-style[data-topbar-style]').forEach(btn => {
     const active = btn.dataset.topbarStyle === style;
     btn.classList.toggle('active', active);
@@ -6059,7 +6060,7 @@ function updateTopbarRailsAutoHide(checked) {
 // island pill). Re-applies the dashboard layout so the grid reclaims/returns
 // the bar's row with a smooth transition.
 function updateTopbarStyle(style) {
-  if (!['full', 'minimal'].includes(style)) return;
+  if (!['full', 'minimal', 'hidden'].includes(style)) return;
   hubSettings = normalizeSettings({ ...hubSettings, topbarStyle: style });
   saveHubSettings();
   syncTopbarStyleControls();

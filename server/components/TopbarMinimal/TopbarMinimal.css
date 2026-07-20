@@ -51,6 +51,7 @@ body.topbar-minimal .grid-stack-item.island-clear > .grid-stack-item-content {
    by a hairline so nothing feels crammed together. Floats over the centre
    tile's top edge, mirroring how the rails hover over the side tiles. */
 .topbar-mini { display: none; }
+body.topbar-hidden .topbar-mini { display: none !important; }
 
 body.topbar-minimal:not([data-panel]) .topbar-mini {
   position: fixed;

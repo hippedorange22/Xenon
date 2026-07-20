@@ -21,9 +21,12 @@ function setSystemTab(name, options = {}) {
   const histPane = document.getElementById('sys-grid-history');
   const netLabel = document.getElementById('sys-net-label');
   const cap  = document.getElementById('gpu-caption');
-  if (main) main.hidden = (name !== 'main');
-  if (net)  net.hidden  = (name !== 'main');
-  if (netLabel) netLabel.hidden = (name !== 'main');
+  
+  const isCircles = (typeof sysMonitorView !== 'undefined' && sysMonitorView === 'circles');
+  
+  if (main) main.hidden = (name !== 'main' || isCircles);
+  if (net)  net.hidden  = (name !== 'main' || isCircles);
+  if (netLabel) netLabel.hidden = (name !== 'main' || isCircles);
   // The "Optimize performance" button is contextual to the Sistema view.
   const optBtn = document.getElementById('sys-optimize-btn');
   if (optBtn) optBtn.hidden = (name !== 'main');
@@ -89,6 +92,12 @@ function applyNetworkInto(root, data) {
   if (dnUnit) dnUnit.textContent = dn.unit;
   if (upVal)  upVal.textContent  = up.value;
   if (upUnit) upUnit.textContent = up.unit;
+
+  // --- Circle UI Update ---
+  const set = (name, text) => { const el = sf(root, name); if (el) el.textContent = text; };
+  set('net-circle-pri-down', '↓ ' + dn.value + ' ' + dn.unit);
+  set('net-circle-pri-up', '↑ ' + up.value + ' ' + up.unit);
+  set('net-circle-name', data.iface || 'Rete');
 }
 
 function applyNetwork(data) {

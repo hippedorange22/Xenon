@@ -70,6 +70,7 @@
 <link rel="stylesheet" href="components/NotificationsWidget/NotificationsWidget.css">
 <link rel="stylesheet" href="components/StockWidget/StockWidget.css">
 <link rel="stylesheet" href="components/FootballWidget/FootballWidget.css">
+<link rel="stylesheet" href="components/DigitalClock/DigitalClock.css">
 <link rel="stylesheet" href="components/ClaudeWidget/ClaudeWidget.css">
 <link rel="stylesheet" href="components/NewsWidget/NewsWidget.css">
 <link rel="stylesheet" href="components/VitalsWidget/VitalsWidget.css">
@@ -467,6 +468,11 @@
         <div class="football-widget-mount"></div>
       </section>
 
+      <!-- Digital Clock — minimal digital clock. -->
+      <section class="panel digitalclock-panel dashboard-widget" data-dashboard-widget="digitalclock" data-dashboard-size="normal" data-dashboard-order="26" data-dashboard-hidden="true">
+        <div class="digitalclock-widget-mount"></div>
+      </section>
+
       <!-- Claude Code usage ("Xenon Pulse") — local ~/.claude token reactor.
            Fed over SSE ('claude'); hidden by default, added from the "+" palette. -->
       <section class="panel claude-panel dashboard-widget" data-dashboard-widget="claude" data-dashboard-size="normal" data-dashboard-order="27" data-dashboard-hidden="true">
@@ -512,6 +518,14 @@
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 19a9 9 0 1 1 14 0"/><path d="m12 13 4-4"/><circle cx="12" cy="13" r="1.2" fill="currentColor"/></svg>
               <span data-i18n="sys_optimize_short">Migliora</span>
             </button>
+            <div class="sys-view-switcher">
+              <button type="button" class="sys-view-btn active" id="sys-view-lines" onclick="setSysView('lines')" title="Lines View">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+              </button>
+              <button type="button" class="sys-view-btn" id="sys-view-circles" onclick="setSysView('circles')" title="Circles View">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="2"></rect><rect x="14" y="3" width="7" height="7" rx="2"></rect><rect x="14" y="14" width="7" height="7" rx="2"></rect><rect x="3" y="14" width="7" height="7" rx="2"></rect></svg>
+              </button>
+            </div>
             <span class="sys-uptime" data-sf="uptime-text">--</span>
           </div>
         </div>
@@ -568,6 +582,64 @@
             <div class="stat-sub" data-sf="disk-sub">--</div>
             <div class="stat-detail" data-sf="disk-detail">--</div>
             <div class="stat-track"><div class="stat-fill disk" data-sf="disk-fill"></div></div>
+          </div>
+        </div>
+        <div class="system-grid-circles" id="sys-grid-circles" hidden>
+          <div class="stat-box-circle" data-system-card="cpu" onclick="cycleCircleMetric('cpu')">
+            <div class="circle-title">CPU</div>
+            <div class="circle-chart-container">
+              <svg class="circle-chart" viewBox="0 0 36 36">
+                <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                <path class="circle-fill cpu-fill" data-sf="cpu-circle-path" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+              </svg>
+              <div class="circle-content">
+                <div class="circle-val-pri" data-sf="cpu-circle-pri">--%</div>
+                <div class="circle-val-sec" data-sf="cpu-circle-sec">--°C</div>
+              </div>
+            </div>
+            <div class="circle-sub" data-sf="cpu-circle-name">--</div>
+          </div>
+          <div class="stat-box-circle" data-system-card="gpu" onclick="cycleCircleMetric('gpu')">
+            <div class="circle-title">GPU</div>
+            <div class="circle-chart-container">
+              <svg class="circle-chart" viewBox="0 0 36 36">
+                <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                <path class="circle-fill gpu-fill" data-sf="gpu-circle-path" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+              </svg>
+              <div class="circle-content">
+                <div class="circle-val-pri" data-sf="gpu-circle-pri">--%</div>
+                <div class="circle-val-sec" data-sf="gpu-circle-sec">--°C</div>
+              </div>
+            </div>
+            <div class="circle-sub" data-sf="gpu-circle-name">--</div>
+          </div>
+          <div class="stat-box-circle" data-system-card="ram">
+            <div class="circle-title">RAM</div>
+            <div class="circle-chart-container">
+              <svg class="circle-chart" viewBox="0 0 36 36">
+                <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                <path class="circle-fill ram-fill" data-sf="ram-circle-path" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+              </svg>
+              <div class="circle-content">
+                <div class="circle-val-pri" data-sf="ram-circle-pri">--%</div>
+                <div class="circle-val-sec" data-sf="ram-circle-sec">-- GB</div>
+              </div>
+            </div>
+            <div class="circle-sub" data-sf="ram-circle-name">--</div>
+          </div>
+          <div class="stat-box-circle" data-system-card="net">
+            <div class="circle-title">NETWORK</div>
+            <div class="circle-chart-container">
+              <svg class="circle-chart" viewBox="0 0 36 36">
+                <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                <path class="circle-fill net-fill" stroke-dasharray="100, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+              </svg>
+              <div class="circle-content">
+                <div class="circle-val-pri" style="font-size: 15px; line-height: 1.3; margin-bottom: 2px; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 0 4px;" data-sf="net-circle-pri-down">↓ --</div>
+                <div class="circle-val-pri" style="font-size: 15px; line-height: 1.3; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 0 4px;" data-sf="net-circle-pri-up">↑ --</div>
+              </div>
+            </div>
+            <div class="circle-sub" data-sf="net-circle-name">--</div>
           </div>
         </div>
         <div class="sys-subsection" id="sys-net-label" data-i18n="sys_tab_net" hidden>Rete &amp; Gaming</div>
@@ -1071,6 +1143,7 @@
           <div class="settings-segmented" role="group" aria-label="Stile barra superiore">
             <button class="settings-topbar-style settings-segment-btn" type="button" data-topbar-style="full" onclick="updateTopbarStyle('full')" aria-pressed="true" data-i18n="settings_topbar_full">Completa</button>
             <button class="settings-topbar-style settings-segment-btn" type="button" data-topbar-style="minimal" onclick="updateTopbarStyle('minimal')" aria-pressed="false" data-i18n="settings_topbar_minimal">Minimal</button>
+            <button class="settings-topbar-style settings-segment-btn" type="button" data-topbar-style="hidden" onclick="updateTopbarStyle('hidden')" aria-pressed="false" data-i18n="settings_topbar_hidden">Hidden</button>
           </div>
         </div>
         <!-- Minimal-island personalization: shown only when the Minimal style is
@@ -3286,6 +3359,7 @@
 <script src="js/notifications-widget.js"></script>
 <script src="js/stock-widget.js"></script>
 <script src="js/football-widget.js"></script>
+<script src="js/digital-clock-widget.js"></script>
 <script src="js/claude-widget.js"></script>
 <script src="js/news-widget.js"></script>
 <script src="js/vitals.js"></script>
