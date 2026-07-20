@@ -586,6 +586,8 @@ body.topbar-hidden.layout-editing .shell { grid-template-rows: auto minmax(0, 1f
 
 /* Visible only when the bar is hidden and not actively editing. */
 body.topbar-hidden:not(.layout-editing) .layout-fab { display: inline-flex; }
+/* When minimal mode is active, the layout button is tucked in the edge rail, so hide the redundant FAB. */
+body.topbar-minimal .layout-fab { display: none !important; }
 /* Lift the button clear of a bottom ticker so it never sits on the moving news. */
 body.xe-has-ticker.xe-ticker-bottom .layout-fab { bottom: calc(18px + var(--xe-ticker-h)); }
 /* Never overlap an open full-screen panel (settings / app switcher). */
