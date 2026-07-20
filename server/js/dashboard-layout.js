@@ -1880,10 +1880,15 @@ function applyDashboardLayout() {
   // Hide the top bar entirely when the user opted out of it — but never while
   // editing, so the full toolset (pager dots, page add/remove, Done) stays
   // reachable. A floating Layout button (below) re-opens the editor.
+  const isHiddenStyle = window.hubSettings && window.hubSettings.topbarStyle === 'hidden';
   document.body.classList.toggle('topbar-hidden',
-    (window.hubSettings && window.hubSettings.topbarStyle === 'hidden') ||
-    (!dashboardLayoutEditing && layout.topbarHidden === true)
+    isHiddenStyle || (!dashboardLayoutEditing && layout.topbarHidden === true)
   );
+  const tb = document.querySelector('.topbar');
+  if (tb) {
+    if (isHiddenStyle) tb.style.setProperty('display', 'none', 'important');
+    else tb.style.removeProperty('display');
+  }
   // Minimal chrome (edge rails + island pill) follows the settings; a fully
   // hidden bar wins over it — TopbarMinimal.apply() checks both.
   if (window.TopbarMinimal) window.TopbarMinimal.apply();
