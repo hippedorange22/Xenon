@@ -352,9 +352,11 @@
     if (document.body.dataset.panel) return;
     const settings = (typeof hubSettings !== 'undefined' && hubSettings) ? hubSettings : null;
     const barHidden = !!(settings && settings.dashboardLayout && settings.dashboardLayout.topbarHidden === true);
-    const wantMinimal = !!(settings && ['minimal', 'hidden'].includes(settings.topbarStyle) && !barHidden);
+    const wantMinimal = !!(settings && ['minimal', 'hidden'].includes(settings.topbarStyle));
     if (wantMinimal) enable(); else disable();
-    if (active && ui && ui.pill) ui.pill.style.display = settings && settings.topbarStyle === 'hidden' ? 'none' : '';
+    if (active && ui && ui.pill) {
+      ui.pill.style.display = (settings && settings.topbarStyle === 'hidden') || barHidden ? 'none' : '';
+    }
     // Pick up an auto-hide setting change even when already active (enable() would
     // have early-returned). Self-guards when inactive.
     configureAutoHide();

@@ -226,10 +226,8 @@ body.topbar-minimal:not([data-panel]) .edge-rail {
 /* While editing the layout, the fixed edge rails sit in the SAME z-band, and on
    the same screen edges, as the tiles' left-edge move grips and bottom-right
    resize corners — so an edge-column tile can't be grabbed or resized (the rail
-   swallows the pointer). The rails aren't needed mid-edit (you exit through the
-   layout dock's Done, and add widgets from the palette pull), so hide them while
-   editing: the tile handles along both edges become reachable again. */
-body.topbar-minimal.layout-editing:not([data-panel]) .edge-rail { display: none; }
+  /* Removed display:none on edge rails in edit mode so layout actions remain accessible. 
+   Rails remain collapsed by default and don't block handles until clicked. */
 
 body.topbar-minimal .edge-rail-left.is-collapsed  { transform: translate(calc(-100% + 22px), -50%); }
 body.topbar-minimal .edge-rail-right.is-collapsed { transform: translate(calc(100% - 22px), -50%); }

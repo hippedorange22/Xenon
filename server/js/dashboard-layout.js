@@ -1889,6 +1889,14 @@ function applyDashboardLayout() {
     if (isHiddenStyle) tb.style.setProperty('display', 'none', 'important');
     else tb.style.removeProperty('display');
   }
+  // Force collapse edge rails when entering edit mode so they don't block tile handles
+  if (dashboardLayoutEditing) {
+    document.querySelectorAll('.edge-rail').forEach(rail => {
+      if (!rail.classList.contains('is-collapsed')) {
+        rail.classList.add('is-collapsed');
+      }
+    });
+  }
   // Minimal chrome (edge rails + island pill) follows the settings; a fully
   // hidden bar wins over it — TopbarMinimal.apply() checks both.
   if (window.TopbarMinimal) window.TopbarMinimal.apply();
