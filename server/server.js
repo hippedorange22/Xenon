@@ -80,8 +80,6 @@ let APP_VERSION = '';
 // regardless of what package.json holds.
 try { APP_VERSION = String(require('../package.json').version || '').trim().replace(/^v/i, ''); } catch {}
 
-const PORT = process.env.XENON_PORT ? parseInt(process.env.XENON_PORT, 10) : 3030;
-
 // ── Update check ──────────────────────────────────────────────────────────────
 // Soft probe of the latest GitHub release so the dashboard can show a discreet
 // "update available" hint in Settings. No token, never auto-downloads, and
@@ -575,7 +573,7 @@ function openDeckPopupWindow(instanceRaw, topmost) {
     'C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe']
     .find((p) => { try { return fs.existsSync(p); } catch { return false; } });
   if (!edge) return { ok: false, error: 'edge_not_found' };
-  const url = 'http://127.0.0.1:' + PORT + '/deck-popup' + (instance ? '?instance=' + encodeURIComponent(instance) : '');
+  const url = 'http://127.0.0.1:3030/deck-popup' + (instance ? '?instance=' + encodeURIComponent(instance) : '');
   const args = [
     '--app=' + url,
     '--user-data-dir=' + path.join(DATA_DIR, 'deck-popup-profile'),
@@ -3943,6 +3941,19 @@ const deckRegistryDeps = {
       });
     });
   },
+  signalRgbLayout: async (layoutName) => {
+    const localAppData = process.env.LOCALAPPDATA;
+    if (!localAppData) throw new Error('env_unavailable');
+    const launcher = path.join(localAppData, 'VortxEngine', 'SignalRgbLauncher.exe');
+    if (!fs.existsSync(launcher)) throw new Error('launcher_not_found');
+    const arg = '--url=' + encodeURI('layout/apply/' + layoutName + '?-silentlaunch-');
+    return new Promise((resolve) => {
+      execFile(launcher, [arg], { windowsHide: true }, (err) => {
+        if (err) resolve({ ok: false, error: String(err) });
+        else resolve({ ok: true });
+      });
+    });
+  },
   openExternal: (p) => runPowerShellScript(DECK_ACTIONS_SCRIPT, ['open', p], 8000),
   // Run a user-configured .bat/.cmd/.ps1/.py (the runScript action), in a visible
   // or hidden window. The path is validated to a real script in the registry
@@ -5572,7 +5583,7 @@ async function transcodeMp4BackgroundToWebm(sourcePath, targetPath) {
 
 const DashboardInstances = require('./js/dashboard-instances.js');
 
-const DASHBOARD_WIDGET_IDS = Object.freeze(['media', 'agenda', 'mic', 'audio', 'system', 'notes', 'tasks', 'calendar', 'timer', 'chat', 'deck', 'remote', 'twitch', 'obs', 'youtube', 'discord', 'spotify', 'browser', 'secondscreen', 'weather', 'smarthome', 'streamerbot', 'wavelink', 'lighting', 'notifications', 'stocks', 'football', 'news', 'claude', 'vitals', 'unifi', 'custom']);
+const DASHBOARD_WIDGET_IDS = Object.freeze(['media', 'agenda', 'mic', 'audio', 'system', 'notes', 'tasks', 'calendar', 'timer', 'chat', 'deck', 'remote', 'twitch', 'obs', 'youtube', 'discord', 'spotify', 'browser', 'secondscreen', 'weather', 'smarthome', 'streamerbot', 'wavelink', 'lighting', 'notifications', 'stocks', 'football', 'news', 'claude', 'vitals', 'unifi', 'custom', 'digitalclock']);
 const DASHBOARD_PAGE_IDS = Object.freeze(['dashboard']);
 const DASHBOARD_TAB_IDS = Object.freeze(['main', 'net']);
 const CALENDAR_TAB_IDS = Object.freeze(['calendar', 'tasks', 'timer']);
@@ -6598,7 +6609,7 @@ function normalizeHubSettings(value) {
     weather: normalizeSettingsWeather(source.weather),
     tempUnit: source.tempUnit === 'f' ? 'f' : 'c',
     clockFormat: ['auto', '12', '24'].includes(source.clockFormat) ? source.clockFormat : 'auto',
-    topbarStyle: source.topbarStyle === 'minimal' ? 'minimal' : 'full',
+    topbarStyle: source.topbarStyle === 'minimal' ? 'minimal' : (source.topbarStyle === 'hidden' ? 'hidden' : 'full'),
     topbarRails: normalizeTopbarRails(source.topbarRails),
     topbarRailsAutoHide: source.topbarRailsAutoHide !== false,
     topbarClock: normalizeTopbarClock(source.topbarClock),
@@ -8411,7 +8422,6 @@ setInterval(() => {
 // level, so DNS-rebinding / Host-spoofing attacks from non-loopback IPs are blocked.
 const LOOPBACK_IPS = new Set(['127.0.0.1', '::1', '::ffff:127.0.0.1']);
 const ALLOWED_HOSTS = new Set([
-  '127.0.0.1:' + PORT, 'localhost:' + PORT, '[::1]:' + PORT,
   '127.0.0.1:3030', 'localhost:3030', '[::1]:3030',
   '127.0.0.1', 'localhost', '[::1]',
 ]);
@@ -8551,6 +8561,30 @@ async function scanSignalRgbEffects() {
       scanDir(roamingCacheDir, 'Downloaded');
     }
   }
+
+  list.sort((a, b) => a.value.localeCompare(b.value));
+  return list;
+}
+
+async function scanSignalRgbLayouts() {
+  const list = [];
+  try {
+    const stdout = await new Promise((resolve) => {
+      exec('reg query "HKCU\\Software\\WhirlwindFX\\SignalRgb\\layouts"', { windowsHide: true }, (err, stdout) => {
+        if (err) resolve('');
+        else resolve(stdout);
+      });
+    });
+
+    const prefix = 'HKEY_CURRENT_USER\\Software\\WhirlwindFX\\SignalRgb\\layouts\\';
+    for (const line of stdout.split(/\r?\n/)) {
+      const trimmed = line.trim();
+      if (trimmed.startsWith(prefix) && trimmed.length > prefix.length) {
+        const layoutName = trimmed.substring(prefix.length);
+        list.push({ value: layoutName, label: layoutName });
+      }
+    }
+  } catch (e) {}
 
   list.sort((a, b) => a.value.localeCompare(b.value));
   return list;
@@ -9959,6 +9993,14 @@ const server = http.createServer(async (req, res) => {
       json({ ok: true, effects });
     } catch (e) {
       json({ ok: false, effects: [], error: String(e.message || e) });
+    }
+
+  } else if (reqPath === '/api/signalrgb/layouts' && req.method === 'GET') {
+    try {
+      const layouts = await scanSignalRgbLayouts();
+      json({ ok: true, layouts });
+    } catch (e) {
+      json({ ok: false, layouts: [], error: String(e.message || e) });
     }
 
   } else if (reqPath === '/streamerbot/actions' && req.method === 'GET') {
@@ -13771,8 +13813,8 @@ function ensureHelperUpToDate(attempt = 1) {
 }
 
 function _startListen(host) {
-  server.listen(PORT, host, () => {
-    console.log('Widget server running on http://' + host + ':' + PORT);
+  server.listen(3030, host, () => {
+    console.log('Widget server running on http://' + host + ':3030');
     // Refresh an outdated native helper left behind by an in-app self-update. Delayed
     // and fire-and-forget so it never competes with boot; runs at most once per version.
     setTimeout(() => { try { ensureHelperUpToDate(); } catch { /* ignore */ } }, 8000);
@@ -13833,7 +13875,7 @@ function _startListen(host) {
 
 server.on('error', err => {
   if (err.code === 'EADDRINUSE') {
-    console.error('Port ' + PORT + ' is already in use. Close the other node process before restarting.');
+    console.error('Port 3030 is already in use. Close the other node process before restarting.');
     process.exit(1);
   } else if ((err.code === 'EAFNOSUPPORT' || err.code === 'EADDRNOTAVAIL') && server.listening === false) {
     // IPv6 not available on this system — fall back to IPv4 loopback
