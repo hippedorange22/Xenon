@@ -1087,7 +1087,7 @@ let _tileStyleOverlay = null;
 let _tileStyleFlush = null;
 function closeTileStyleEditor() {
   // Flush a pending debounced persist so closing right after a drag never drops it.
-  if (_tileStyleFlush) { const f = _tileStyleFlush; _tileStyleFlush = null; try { f(); } catch (_) {} }
+  if (_tileStyleFlush) { const f = _tileStyleFlush; _tileStyleFlush = null; try { f(); } catch (_) { } }
   if (_tileStyleOverlay) { _tileStyleOverlay.remove(); _tileStyleOverlay = null; }
 }
 // Tabbed editor: give one tile its own colours, a background picture, ornamental
@@ -1209,7 +1209,7 @@ function openTileStyleEditor(id, anchor) {
     pop.style.left = `${r.left}px`; pop.style.top = `${r.top}px`;
     overlay.style.justifyContent = 'flex-start'; overlay.style.alignItems = 'flex-start';
     dragFrom = { x: e.clientX, y: e.clientY, left: r.left, top: r.top };
-    try { head.setPointerCapture(e.pointerId); } catch (_) {}
+    try { head.setPointerCapture(e.pointerId); } catch (_) { }
     e.preventDefault();
   });
   head.addEventListener('pointermove', (e) => {
@@ -1219,7 +1219,7 @@ function openTileStyleEditor(id, anchor) {
     const nt = Math.max(6, Math.min(window.innerHeight - Math.min(h, window.innerHeight - 12) - 6, dragFrom.top + (e.clientY - dragFrom.y)));
     pop.style.left = `${nl}px`; pop.style.top = `${nt}px`;
   });
-  const endDrag = (e) => { dragFrom = null; try { head.releasePointerCapture(e.pointerId); } catch (_) {} };
+  const endDrag = (e) => { dragFrom = null; try { head.releasePointerCapture(e.pointerId); } catch (_) { } };
   head.addEventListener('pointerup', endDrag);
   head.addEventListener('pointercancel', endDrag);
 
@@ -1475,9 +1475,9 @@ function openTileStyleEditor(id, anchor) {
       dot.style.left = `${ov.x}%`; dot.style.top = `${ov.y}%`; commit();
     };
     let dragging = false;
-    pad.addEventListener('pointerdown', (e) => { dragging = true; try { pad.setPointerCapture(e.pointerId); } catch (_) {} setFromEvent(e); e.preventDefault(); });
+    pad.addEventListener('pointerdown', (e) => { dragging = true; try { pad.setPointerCapture(e.pointerId); } catch (_) { } setFromEvent(e); e.preventDefault(); });
     pad.addEventListener('pointermove', (e) => { if (dragging) setFromEvent(e); });
-    const stop = (e) => { dragging = false; try { pad.releasePointerCapture(e.pointerId); } catch (_) {} };
+    const stop = (e) => { dragging = false; try { pad.releasePointerCapture(e.pointerId); } catch (_) { } };
     pad.addEventListener('pointerup', stop);
     pad.addEventListener('pointercancel', stop);
     return pad;
@@ -1859,6 +1859,7 @@ function applyDashboardLayout() {
   step('wnRender', () => { if (window.NotificationsWidget && typeof window.NotificationsWidget.renderWidgets === 'function') window.NotificationsWidget.renderWidgets(); });
   step('stocksRender', () => { if (window.StockWidget && typeof window.StockWidget.renderWidgets === 'function') window.StockWidget.renderWidgets(); });
   step('footballRender', () => { if (window.FootballWidget && typeof window.FootballWidget.renderWidgets === 'function') window.FootballWidget.renderWidgets(); });
+  step('digitalclockRender', () => { if (window.DigitalClockWidget && typeof window.DigitalClockWidget.renderWidgets === 'function') window.DigitalClockWidget.renderWidgets(); });
   step('claudeRender', () => { if (window.ClaudeWidget && typeof window.ClaudeWidget.renderWidgets === 'function') window.ClaudeWidget.renderWidgets(); });
   step('newsRender', () => { if (window.NewsWidget && typeof window.NewsWidget.renderWidgets === 'function') window.NewsWidget.renderWidgets(); });
   step('vitalsRender', () => { if (window.VitalsWidget && typeof window.VitalsWidget.renderWidgets === 'function') window.VitalsWidget.renderWidgets(); });
@@ -1879,7 +1880,10 @@ function applyDashboardLayout() {
   // Hide the top bar entirely when the user opted out of it — but never while
   // editing, so the full toolset (pager dots, page add/remove, Done) stays
   // reachable. A floating Layout button (below) re-opens the editor.
-  document.body.classList.toggle('topbar-hidden', layout.topbarHidden === true);
+  document.body.classList.toggle('topbar-hidden',
+    (window.hubSettings && window.hubSettings.topbarStyle === 'hidden') ||
+    (!dashboardLayoutEditing && layout.topbarHidden === true)
+  );
   // Minimal chrome (edge rails + island pill) follows the settings; a fully
   // hidden bar wins over it — TopbarMinimal.apply() checks both.
   if (window.TopbarMinimal) window.TopbarMinimal.apply();
