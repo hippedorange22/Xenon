@@ -111,6 +111,7 @@ const DEFAULT_DASHBOARD_LAYOUT = Object.freeze({
     vitals:   Object.freeze({ x: 8, y: 38, w: 8, h: 8, visible: false, page: 'dashboard' }),
     unifi:    Object.freeze({ x: 8, y: 18, w: 8, h: 8, visible: false, page: 'dashboard' }),
     custom:   Object.freeze({ x: 0, y: 28, w: 8, h: 8, visible: false, page: 'dashboard' }),
+    digitalclock: Object.freeze({ x: 0, y: 0, w: 6, h: 6, visible: false, page: 'dashboard' }),
     
     lockpc: Object.freeze({ x: 0, y: 0, w: 4, h: 4, visible: false, page: 'dashboard' }),
   }),
