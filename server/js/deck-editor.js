@@ -1517,6 +1517,7 @@
       openUrl: _ai('<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18"/>'),
       hotkey: _ai('<rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"/>'),
       typeText: _ai('<path d="M4 7V5h16v2M12 5v14M9 19h6"/>'),
+      pasteText: _ai('<path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>'),
       lockWorkstation: _ai('<path d="M18 8h-1V6a5 5 0 0 0-10 0v2H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V10a2 2 0 0 0-2-2zm-6 9a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm3.1-9H8.9V6a3.1 3.1 0 0 1 6.2 0z"/>'),
       signalRgbEffect: _ai('<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>'),
       signalRgbLayout: _ai('<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>'),
@@ -2434,6 +2435,7 @@
           ctrl = input('text', step.params[p.name] || '');
           // Helpful example placeholders so it's obvious what to enter per param.
           ctrl.placeholder = { path: 'C:\\...\\app.exe', file: 'C:\\...\\suono.mp3', url: 'https://esempio.com', keys: 'ctrl+shift+m', args: '{"key":"value"}', message: t('deck_ph_message'), text: t('deck_ph_text') }[p.name] || '';
+          if (step.type === 'pasteText' && p.name === 'text') ctrl.placeholder = t('deck_ph_pasteText') || 'Add text to paste';
         }
         step.params[p.name] = ctrl.value;                 // seed the default
         const write = () => { step.params[p.name] = ctrl.value; };
