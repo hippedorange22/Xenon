@@ -1860,6 +1860,7 @@ function applyDashboardLayout() {
   step('stocksRender', () => { if (window.StockWidget && typeof window.StockWidget.renderWidgets === 'function') window.StockWidget.renderWidgets(); });
   step('footballRender', () => { if (window.FootballWidget && typeof window.FootballWidget.renderWidgets === 'function') window.FootballWidget.renderWidgets(); });
   step('digitalclockRender', () => { if (window.DigitalClockWidget && typeof window.DigitalClockWidget.renderWidgets === 'function') window.DigitalClockWidget.renderWidgets(); });
+    step('lockpcRender', () => { if (window.LockPcWidget && typeof window.LockPcWidget.renderWidgets === 'function') window.LockPcWidget.renderWidgets(); });
   step('claudeRender', () => { if (window.ClaudeWidget && typeof window.ClaudeWidget.renderWidgets === 'function') window.ClaudeWidget.renderWidgets(); });
   step('newsRender', () => { if (window.NewsWidget && typeof window.NewsWidget.renderWidgets === 'function') window.NewsWidget.renderWidgets(); });
   step('vitalsRender', () => { if (window.VitalsWidget && typeof window.VitalsWidget.renderWidgets === 'function') window.VitalsWidget.renderWidgets(); });
