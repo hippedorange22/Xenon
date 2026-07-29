@@ -4078,6 +4078,17 @@ const deckRegistryDeps = {
   // snippet like "--force" or "- item" would otherwise break binding. Base64
   // can never start with '-' and round-trips newlines/quotes exactly. Longer
   // timeout: typing is paced per character.
+  pasteText: async (text) => {
+    try {
+      const b64 = Buffer.from(String(text), 'utf8').toString('base64');
+      await new Promise((resolve, reject) => {
+        const cp = spawn('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command', `[System.Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('${b64}')) | Set-Clipboard`]);
+        cp.on('exit', code => code === 0 ? resolve() : reject());
+      });
+      const r = await runPowerShellScript(DECK_HOTKEY_SCRIPT, ['-Keys', 'CTRL+V'], 6000);
+      return (r && r.ok === false) ? { ok: false, error: r.error || 'paste_failed' } : { ok: true };
+    } catch { return { ok: false, error: 'paste_failed' }; }
+  },
   typeText: async (text) => {
     try {
       const b64 = Buffer.from(String(text), 'utf8').toString('base64');
@@ -5583,7 +5594,7 @@ async function transcodeMp4BackgroundToWebm(sourcePath, targetPath) {
 
 const DashboardInstances = require('./js/dashboard-instances.js');
 
-const DASHBOARD_WIDGET_IDS = Object.freeze(['media', 'agenda', 'mic', 'audio', 'system', 'notes', 'tasks', 'calendar', 'timer', 'chat', 'deck', 'remote', 'twitch', 'obs', 'youtube', 'discord', 'spotify', 'browser', 'secondscreen', 'weather', 'smarthome', 'streamerbot', 'wavelink', 'lighting', 'notifications', 'stocks', 'football', 'news', 'claude', 'vitals', 'unifi', 'custom', 'digitalclock']);
+const DASHBOARD_WIDGET_IDS = Object.freeze(['media', 'agenda', 'mic', 'audio', 'system', 'notes', 'tasks', 'calendar', 'timer', 'chat', 'deck', 'remote', 'twitch', 'obs', 'youtube', 'discord', 'spotify', 'browser', 'secondscreen', 'weather', 'smarthome', 'streamerbot', 'wavelink', 'lighting', 'notifications', 'stocks', 'football', 'news', 'claude', 'vitals', 'unifi', 'custom', 'digitalclock', 'lockpc']);
 const DASHBOARD_PAGE_IDS = Object.freeze(['dashboard']);
 const DASHBOARD_TAB_IDS = Object.freeze(['main', 'net']);
 const CALENDAR_TAB_IDS = Object.freeze(['calendar', 'tasks', 'timer']);
@@ -5645,6 +5656,8 @@ const DEFAULT_DASHBOARD_LAYOUT = Object.freeze({
     vitals:   Object.freeze({ x: 8, y: 38, w: 8, h: 8, visible: false, page: 'dashboard' }),
     unifi:    Object.freeze({ x: 8, y: 18, w: 8, h: 8, visible: false, page: 'dashboard' }),
     custom:   Object.freeze({ x: 0, y: 28, w: 8, h: 8, visible: false, page: 'dashboard' }),
+    digitalclock: Object.freeze({ x: 0, y: 0, w: 6, h: 6, visible: false, page: 'dashboard' }),
+    lockpc: Object.freeze({ x: 0, y: 0, w: 4, h: 4, visible: false, page: 'dashboard' }),
   }),
   groups: Object.freeze({
     'media-group': Object.freeze({ id: 'media-group', members: Object.freeze(['media', 'chat']), active: 'media', x: 0, y: 0, w: 8, h: 8, page: 'dashboard', seeded: true, autoTabByMedia: true }),
