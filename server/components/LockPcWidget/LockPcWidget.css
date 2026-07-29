@@ -1,0 +1,51 @@
+.lockpc-widget-mount {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: inherit;
+  background: rgba(var(--accent-rgb), 0.12);
+  cursor: pointer;
+  transition: transform 0.1s cubic-bezier(0.4, 0.0, 0.2, 1), background 0.15s ease;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.lockpc-widget-mount:hover {
+  background: rgba(var(--accent-rgb), 0.22);
+}
+
+.lockpc-widget-mount:active {
+  transform: scale(0.95);
+  background: rgba(var(--accent-rgb), 0.32);
+}
+
+.lockpc-icon {
+  width: 50%;
+  height: 50%;
+  max-width: 90px;
+  max-height: 90px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lockpc-icon svg {
+  width: 100%;
+  height: 100%;
+  fill: var(--accent);
+  filter: drop-shadow(0 2px 8px rgba(var(--accent-rgb), 0.4));
+  transition: transform 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
+}
+
+.lockpc-widget-mount:hover .lockpc-icon svg {
+  transform: scale(1.08);
+}
+
+/* Ensure the outer widget takes full size */
+.dashboard-widget[data-dashboard-widget="lockpc"] {
+  display: flex;
+  padding: 0;
+  overflow: hidden;
+}

@@ -71,6 +71,7 @@
 <link rel="stylesheet" href="components/StockWidget/StockWidget.css">
 <link rel="stylesheet" href="components/FootballWidget/FootballWidget.css">
 <link rel="stylesheet" href="components/DigitalClock/DigitalClock.css">
+  <link rel="stylesheet" href="components/LockPcWidget/LockPcWidget.css">
 <link rel="stylesheet" href="components/ClaudeWidget/ClaudeWidget.css">
 <link rel="stylesheet" href="components/NewsWidget/NewsWidget.css">
 <link rel="stylesheet" href="components/VitalsWidget/VitalsWidget.css">
@@ -472,6 +473,11 @@
       <section class="panel digitalclock-panel dashboard-widget" data-dashboard-widget="digitalclock" data-dashboard-size="normal" data-dashboard-order="26" data-dashboard-hidden="true">
         <div class="digitalclock-widget-mount"></div>
       </section>
+
+        <!-- Lock PC Widget -->
+        <section class="panel lockpc-panel dashboard-widget" data-dashboard-widget="lockpc" data-dashboard-size="normal" data-dashboard-order="27" data-dashboard-hidden="true">
+          <div class="lockpc-widget-mount"></div>
+        </section>
 
       <!-- Claude Code usage ("Xenon Pulse") — local ~/.claude token reactor.
            Fed over SSE ('claude'); hidden by default, added from the "+" palette. -->
@@ -3360,6 +3366,7 @@
 <script src="js/stock-widget.js"></script>
 <script src="js/football-widget.js"></script>
 <script src="js/digital-clock-widget.js"></script>
+  <script src="js/lock-pc-widget.js"></script>
 <script src="js/claude-widget.js"></script>
 <script src="js/news-widget.js"></script>
 <script src="js/vitals.js"></script>
